@@ -1,16 +1,55 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { useRoute } from '@react-navigation/native'
 import QRCode from 'react-native-qrcode-svg'
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const BuyTIcket = () => {
     const route = useRoute();
     const qrValue = "Bus No :" + route.params.details.busno +"; Fair :"+ route.params.details.price+ "; Route No :" + route.params.details.routeno
+    const [username,setUserName] = useState();
+
+    const getMe = async () =>{
+
+        await AsyncStorage.getItem('userName').then(res=>{
+            console.log(res)
+            setUserName(res)
+        })
+    }
 
     const buyTicket =()=>{
         console.log("buy Ticket")
+
+        const data = {
+            username,
+            busno : route.params.details.busno,
+            routeno : route.params.details.routeno,
+            time : route.params.details.time,
+            from : route.params.details.from,
+            to : route.params.details.to,
+            price : route.params.details.price,
+        }
+        console.log(data)
+
+        axios.post("http://10.0.2.2:8080/Ticket/addTicket",data).then(res =>{
+            ToastAndroid.show(res.data.status,ToastAndroid.SHORT)
+        }).catch(err =>{
+            ToastAndroid.show(err,ToastAndroid.SHORT)
+
+        })
+
     }
+
+    useEffect(() => {
+
+        getMe();
+
+        // axios.post("http://10.0.2.2:8080/User/login")
+
+    }, [])
+    
 
 
   return (
