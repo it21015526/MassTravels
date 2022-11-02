@@ -1,15 +1,16 @@
-import {StyleSheet, Text, ToastAndroid, View } from 'react-native'
+import {StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useUserName } from '../context/UserProvider'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const Profile = () => {
 
   const [data,setData] = useState([]);
   const [isLoading,setIsLoading] = useState(true);
-
   
+  const navigation = useNavigation();
 
   const getName = async() =>{
       await AsyncStorage.getItem('userName').then(res=>{
@@ -36,13 +37,21 @@ const Profile = () => {
     getName()
 
   }, [])
+
+  const Logout = () =>{
+    AsyncStorage.removeItem('userName')
+    navigation.navigate("Main")
+    
+
+  }
   
   return (
+    <>
     <View style = {{margin:20}}>
       <Text style = {{fontSize : 35,fontWeight : 'bold',marginBottom:20}}>Profile</Text>
       {isLoading ? (
         <View><Text>Loading ...</Text></View>
-      ):<>
+        ):<>
       <View style = {{margin : 10,backgroundColor : 'white',padding:10,borderRadius:18,elevation:10}}>
         <Text style={styles.txtForm}>Name :  {data[0].name}</Text>
         <Text style={styles.txtForm}>NIC  :  {data[0].nic}</Text>
@@ -55,6 +64,10 @@ const Profile = () => {
       </View>
       </>}
     </View>
+      <TouchableOpacity style = {styles.Logout} onPress = {Logout}>
+          <Text style = {{fontSize : 20,fontWeight : 'bold',color : 'white'}} >Log Out</Text>
+      </TouchableOpacity>
+        </>
   )
 }
 
@@ -65,5 +78,16 @@ const styles = StyleSheet.create({
     fontSize : 20,
     fontWeight : '800',
     margin:10
-  }
+  },
+  Logout:{
+    borderRadius : 26,
+    backgroundColor : 'red',
+    elevation : 10,
+    alignItems : 'center',
+    marginTop : 10,
+    width : 300,
+    padding : 10,
+    marginHorizontal : 50
+
+}
 })
